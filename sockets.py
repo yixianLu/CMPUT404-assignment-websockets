@@ -100,6 +100,10 @@ def read_ws(ws,client):
         '''Done'''
 
 def send_all(msg):
+    real_dict = json.loads(msg)
+    entities = real_dict.keys()
+    for entity in entities:
+        myWorld.set(entity,real_dict[entity])
     for client in clients:
         client.put( msg )
 
