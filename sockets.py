@@ -14,7 +14,7 @@
 # limitations under the License.
 #
 import flask
-from flask import Flask, request
+from flask import Flask, request,Response,redirect
 from flask_sockets import Sockets
 import gevent
 from gevent import queue
@@ -94,16 +94,16 @@ def read_ws(ws,client):
             if (msg is not None):
                 packet = json.loads(msg)
                 send_all_json( packet )
+                entities = packet.keys()
+                for entity in entities:
+                     myWorld.set(entity,packet[entity])
+
             else:
                 break
     except:
         '''Done'''
 
 def send_all(msg):
-    real_dict = json.loads(msg)
-    entities = real_dict.keys()
-    for entity in entities:
-        myWorld.set(entity,real_dict[entity])
     for client in clients:
         client.put( msg )
 
@@ -147,23 +147,32 @@ def flask_post_json():
 @app.route("/entity/<entity>", methods=['POST','PUT'])
 def update(entity):
     '''update the entities via this interface'''
-    return None
+    data = flask_post_json()
+    for key,value in data.items():
+        myWorld.update(entity,key,value)
+    data_as_str = json.dumps(myWorld.world())
+
+    return Response(response=data_as_str, status=200, mimetype="application/json")
 
 @app.route("/world", methods=['POST','GET'])    
 def world():
     '''you should probably return the world here'''
-    return None
+    data_as_str = json.dumps(myWorld.world())
+    return Response(response=data_as_str, status=200, mimetype="application/json")
 
 @app.route("/entity/<entity>")    
 def get_entity(entity):
     '''This is the GET version of the entity interface, return a representation of the entity'''
-    return None
+    data_as_str = json.dumps(myWorld.get(entity=entity))
+    return Response(response=data_as_str, status=200, mimetype="application/json")
 
 
 @app.route("/clear", methods=['POST','GET'])
 def clear():
     '''Clear the world out!'''
-    return None
+    myWorld.clear()
+    data_as_str = json.dumps(myWorld.world())
+    return Response(response=data_as_str,status=200,mimetype="application/json")
 
 
 
