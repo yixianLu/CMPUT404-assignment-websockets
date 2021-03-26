@@ -45,6 +45,7 @@ debug("Test");
 world = {};
 
 //XXX: TODO Make this prettier!
+//code of smiling face referenced from https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Drawing_shapes
 function drawCircle(context,entity) {
     with(context) {
         beginPath();              
@@ -54,7 +55,13 @@ function drawCircle(context,entity) {
         //moveTo(x,y);
         fillStyle = entity["colour"];
         strokeStyle = fillStyle;
-        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false);  
+        arc(x, y, (entity["radius"])?entity["radius"]:50, 0, 2.0 * Math.PI, false); 
+        moveTo(x+35, y);
+        arc(x, y, 35, 0, Math.PI, false);
+        moveTo(x-10, y-10);
+        arc(x-15, y-10, 5, 0, Math.PI * 2, true);  // Left eye
+        moveTo(x+20, y-10);
+        arc(x+20, y-10, 5, 0, Math.PI * 2, true); 
         stroke();                                
     }
 }
@@ -125,7 +132,9 @@ function addEntity(entity, data) {
     world[entity] = data;
     drawNextFrame(); // (but should we?)
     //XXX: Send a XHTML Request that updates the entity you just modified!
-    console.log(world);
+    var packet = { entity : data }
+    socket.send(JSON.stringify(packet));
+
 }
 var counter = 0;
 function addEntityWithoutName(data) {
@@ -240,7 +249,8 @@ mouse.mouseuppers.push(function(x,y,clicked,e) {
 });
 
 mouse.mousedraggers.push(function(x,y,clicked,e) {
-    addEntityWithoutName({'x':x,'y':y,'colour':'green',
+    color = random_pick_color();
+    addEntityWithoutName({'x':x,'y':y,'colour':color,
                           'radius':10});
 });
 
@@ -249,6 +259,14 @@ function update() {
     drawFrame();
 }
 
+function random_pick_color(){
+    var color_list = ['yellow','cyan','magenta','teal','purple']
+    var init_index = Math.random()*(color_list.length-1);
+    var round_index = Math.round(init_index);
+    return color_list[round_index];
+
+
+}
 
 function wsSetup() {
     var url = "ws://"+host+"/subscribe";   
