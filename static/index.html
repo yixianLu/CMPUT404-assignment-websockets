@@ -279,6 +279,11 @@ function wsSetup() {
     };
     socket.onmessage = function(msg) {  
         try {
+            var dict_data = JSON.parse(msg.data);
+            for(var key in dict_data) {
+                var value = dict_data[key];
+                world[key] = value;
+                }
             debug("WebSocket Recv:" + msg.data);
             //XXX: TODO What are you going to do here?            
         } catch (e) {
