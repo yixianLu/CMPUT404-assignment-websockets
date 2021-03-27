@@ -285,6 +285,7 @@ function wsSetup() {
                 world[key] = value;
                 }
             debug("WebSocket Recv:" + msg.data);
+            drawNextFrame();
             //XXX: TODO What are you going to do here?            
         } catch (e) {
             alert("socket on message: " + e);
